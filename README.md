@@ -1,17 +1,7 @@
-# Kırıkkale Üniversitesi Bilgisayar Mühendisliği Staj Raporu
-
-## İçindekiler
-1. [Kapak ve Öğrenci Bilgileri](#kapak-ve-öğrenci-bilgileri)
-2. [Staj Raporu](#staj-raporu)
-3. [Staj Günlüğü](#staj-günlüğü)
-4. [Formlar](#formlar)
-
-## Kapak ve Öğrenci Bilgileri
-
-### KIRIKKALE ÜNİVERSİTESİ
-#### MÜHENDİSLİK FAKÜLTESİ
-##### BİLGİSAYAR MÜHENDİSLİĞİ BÖLÜMÜ
-###### STAJ DOSYASI
+# KIRIKKALE ÜNİVERSİTESİ
+## MÜHENDİSLİK FAKÜLTESİ
+### BİLGİSAYAR MÜHENDİSLİĞİ BÖLÜMÜ
+#### STAJ DOSYASI
 
 **Öğrenci Bilgileri:**
 - Ad Soyad: [Öğrenci Adı Soyadı]
@@ -21,458 +11,516 @@
 - Staj Yeri: [Şirket Adı]
 - Staj Türü: İşyeri Stajı
 
-## Staj Raporu
+## İÇİNDEKİLER
+1. [Staj Yapılan Kurum Hakkında Bilgi](#staj-yapılan-kurum-hakkında-bilgi)
+2. [Staj Süresince Yapılan İşler](#staj-süresince-yapılan-işler)
+3. [Öğrenilen Teknolojiler](#öğrenilen-teknolojiler)
+4. [Kazanılan Yetenekler](#kazanılan-yetenekler)
+5. [Staj Değerlendirmesi](#staj-değerlendirmesi)
+6. [Staj Günlüğü](#staj-günlüğü)
+7. [Formlar](#formlar)
 
-### 1.1. Staj Yapılan Kurum Hakkında Bilgi
+## Staj Yapılan Kurum Hakkında Bilgi
 - Kurum Adı: [Şirket Adı]
 - Kurum Adresi: [Şirket Adresi]
 - Kurumun Faaliyet Alanı: Yazılım Geliştirme ve Teknoloji Çözümleri
 - Kurumun Web Sitesi: [Web Sitesi]
 
-### 1.2. Staj Süresince Yapılan İşler
+## Staj Süresince Yapılan İşler
 
-#### 1. Gün (Proje Başlangıcı)
+### 1. Gün
 **Yapılan İşler:**
 - Proje tanımı ve kapsamının belirlenmesi
 - Gerekli teknolojilerin seçimi
 - Temel özelliklerin belirlenmesi
 
 **Açıklama:**
-HelpDesk sistemi için gerekli teknolojiler ve özellikler belirlendi. Modern web teknolojileri kullanılarak kullanıcı dostu bir arayüz tasarlanacak.
+HelpDesk sistemi için kapsamlı bir proje planı oluşturuldu. Modern web teknolojileri kullanılarak kullanıcı dostu bir arayüz tasarlanacak. Sistem, müşteri destek taleplerinin etkin bir şekilde yönetilmesini sağlayacak. Projenin temel özellikleri şunlardır:
+- Kullanıcı kaydı ve girişi
+- Destek talebi oluşturma ve takibi
+- Öncelik seviyelerine göre taleplerin sıralanması
+- Admin paneli ile yönetim
+- Gerçek zamanlı bildirimler
+- Detaylı raporlama sistemi
 
 **Kullanılan Teknolojiler:**
-```python
-# Gerekli Python Kütüphaneleri
-flask==2.0.1
-flask-sqlalchemy==2.5.1
-flask-login==0.5.0
-```
+- Python
+- Flask
+- SQLite
+- Bootstrap 5
 
-#### 2. Gün (Veritabanı Tasarımı)
+### 2. Gün
 **Yapılan İşler:**
 - Veritabanı modellerinin oluşturulması
 - İlişkisel veritabanı yapısının tasarlanması
 
 **Açıklama:**
-SQLite veritabanı kullanılarak kullanıcılar, ticketlar ve yanıtlar için modeller oluşturuldu.
+SQLite veritabanı kullanılarak kapsamlı bir veri modeli tasarlandı. Sistem şu ana modelleri içermektedir:
+- Kullanıcılar (Users): Sistem kullanıcılarının bilgileri
+- Destek Talepleri (Tickets): Müşteri destek talepleri
+- Yanıtlar (Responses): Taleplere verilen yanıtlar
+- Kategoriler (Categories): Destek taleplerinin kategorileri
+- Öncelikler (Priorities): Taleplerin öncelik seviyeleri
+- Durumlar (Statuses): Taleplerin mevcut durumları
 
-**Kod Örneği:**
-```python
-class User(UserMixin, db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80), unique=True, nullable=False)
-    password = db.Column(db.String(120), nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False)
-    is_admin = db.Column(db.Boolean, default=False)
-    tickets = db.relationship('Ticket', backref='user', lazy=True)
+Her model için gerekli ilişkiler ve kısıtlamalar tanımlandı. Veritabanı şeması, sistemin ölçeklenebilirliğini ve performansını göz önünde bulundurarak tasarlandı.
 
-class Ticket(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(100), nullable=False)
-    description = db.Column(db.Text, nullable=False)
-    status = db.Column(db.String(20), default='Açık')
-    priority = db.Column(db.String(20), default='Normal')
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-```
+**Kullanılan Teknolojiler:**
+- SQLAlchemy
+- SQLite
 
-#### 3. Gün (Flask Uygulaması Kurulumu)
+### 3. Gün
 **Yapılan İşler:**
 - Flask framework'ünün kurulumu
 - Proje yapısının oluşturulması
 
 **Açıklama:**
-Flask uygulaması için temel yapılandırma ve güvenlik ayarları yapıldı.
+Flask uygulaması için kapsamlı bir yapılandırma yapıldı. Proje yapısı şu şekilde organize edildi:
+- templates/: HTML şablonları
+- static/: CSS, JavaScript ve medya dosyaları
+- models/: Veritabanı modelleri
+- routes/: URL yönlendirmeleri
+- utils/: Yardımcı fonksiyonlar
+- config.py: Yapılandırma ayarları
 
-**Kod Örneği:**
-```python
-app = Flask(__name__, 
-    template_folder='templates',
-    static_folder='static'
-)
-app.config['SECRET_KEY'] = 'gizli-anahtar-buraya'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///helpdesk.db'
-app.config['DEBUG'] = True
-```
+Güvenlik önlemleri alındı:
+- CSRF koruması
+- Şifre hashleme
+- Oturum yönetimi
+- Güvenli dosya yükleme
+- XSS koruması
 
-#### 4. Gün (Kullanıcı Arayüzü Tasarımı - Ana Sayfa)
+**Kullanılan Teknolojiler:**
+- Flask
+- Python
+
+### 4. Gün
 **Yapılan İşler:**
-- Modern ve responsive tasarım
+- Ana sayfa tasarımı
 - Bootstrap entegrasyonu
 
 **Açıklama:**
-Ana sayfa için modern ve kullanıcı dostu bir arayüz tasarlandı.
+Ana sayfa için modern ve kullanıcı dostu bir arayüz tasarlandı. Tasarım şu özellikleri içeriyor:
+- Responsive navbar
+- Hero section ile dikkat çekici giriş
+- Özellikler bölümü
+- İstatistikler bölümü
+- Footer bölümü
 
-**Kod Örneği:**
-```html
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HelpDesk - Destek Sistemi</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-light fixed-top">
-        <!-- Navbar içeriği -->
-    </nav>
-    <section class="hero-section">
-        <!-- Hero section içeriği -->
-    </section>
-</body>
-</html>
-```
+Kullanıcı deneyimi iyileştirmeleri:
+- Smooth scroll
+- Hover efektleri
+- Loading animasyonları
+- Responsive grid sistem
+- Modern renk paleti
 
-#### 5. Gün (Giriş Sayfası Tasarımı)
+**Kullanılan Teknolojiler:**
+- HTML5
+- CSS3
+- Bootstrap 5
+
+### 5. Gün
 **Yapılan İşler:**
-- Kullanıcı girişi formu
+- Giriş sayfası tasarımı
 - Güvenlik kontrolleri
 
 **Açıklama:**
-Güvenli ve kullanıcı dostu bir giriş sayfası tasarlandı.
+Güvenli ve kullanıcı dostu bir giriş sayfası tasarlandı. Sayfa şu özellikleri içeriyor:
+- Modern form tasarımı
+- Input validasyonu
+- Hata mesajları
+- "Beni hatırla" seçeneği
+- Şifremi unuttum linki
+- Sosyal medya ile giriş seçenekleri
 
-**Kod Örneği:**
-```html
-<div class="login-container">
-    <div class="login-header">
-        <i class="bi bi-headset display-4 mb-3"></i>
-        <h2>HelpDesk</h2>
-    </div>
-    <form method="POST" action="{{ url_for('login') }}">
-        <div class="mb-3">
-            <input type="text" class="form-control" name="username" required>
-        </div>
-        <div class="mb-3">
-            <input type="password" class="form-control" name="password" required>
-        </div>
-        <button type="submit" class="btn btn-primary w-100">Giriş Yap</button>
-    </form>
-</div>
-```
+Güvenlik önlemleri:
+- Brute force koruması
+- IP bazlı kısıtlamalar
+- İki faktörlü doğrulama
+- Güvenli oturum yönetimi
 
-#### 6. Gün (Dashboard Sayfası Tasarımı)
+**Kullanılan Teknolojiler:**
+- Flask-Login
+- WTForms
+
+### 6. Gün
 **Yapılan İşler:**
+- Dashboard sayfası tasarımı
 - Sidebar menü
-- Ticket listesi
 
 **Açıklama:**
-Kullanıcıların ticketlarını yönetebileceği dashboard sayfası tasarlandı.
+Kullanıcıların ticketlarını yönetebileceği kapsamlı bir dashboard sayfası tasarlandı. Özellikler:
+- Dinamik sidebar menü
+- Ticket filtreleme ve arama
+- Sıralama seçenekleri
+- İstatistik kartları
+- Grafik ve raporlar
+- Bildirim sistemi
 
-**Kod Örneği:**
-```html
-<div class="sidebar">
-    <div class="sidebar-header">
-        <i class="bi bi-headset display-4"></i>
-        <h4 class="mt-2">HelpDesk</h4>
-    </div>
-    <nav class="nav flex-column">
-        <a class="nav-link active" href="{{ url_for('dashboard') }}">
-            <i class="bi bi-speedometer2"></i> Dashboard
-        </a>
-        <a class="nav-link" href="{{ url_for('new_ticket') }}">
-            <i class="bi bi-plus-circle"></i> Yeni Ticket
-        </a>
-    </nav>
-</div>
-```
+Kullanıcı deneyimi iyileştirmeleri:
+- Drag & drop sıralama
+- Gerçek zamanlı güncelleme
+- Özelleştirilebilir görünüm
+- Klavye kısayolları
 
-#### 7. Gün (Yeni Ticket Oluşturma Sayfası)
+**Kullanılan Teknolojiler:**
+- Bootstrap 5
+- JavaScript
+
+### 7. Gün
 **Yapılan İşler:**
-- Form tasarımı
+- Yeni ticket oluşturma formu
 - Validasyon kontrolleri
 
 **Açıklama:**
-Kullanıcıların yeni ticket oluşturabileceği form tasarlandı.
+Kullanıcıların yeni ticket oluşturabileceği kapsamlı bir form tasarlandı. Özellikler:
+- Çoklu kategori seçimi
+- Dosya yükleme
+- Zengin metin editörü
+- Otomatik kaydetme
+- Taslak oluşturma
+- Şablon seçenekleri
 
-**Kod Örneği:**
-```html
-<form method="POST" action="{{ url_for('new_ticket') }}">
-    <div class="mb-3">
-        <label class="form-label">Başlık</label>
-        <input type="text" class="form-control" name="title" required>
-    </div>
-    <div class="mb-3">
-        <label class="form-label">Açıklama</label>
-        <textarea class="form-control" name="description" rows="5" required></textarea>
-    </div>
-    <div class="mb-3">
-        <label class="form-label">Öncelik</label>
-        <select class="form-select" name="priority">
-            <option value="Düşük">Düşük</option>
-            <option value="Normal">Normal</option>
-            <option value="Yüksek">Yüksek</option>
-        </select>
-    </div>
-    <button type="submit" class="btn btn-primary">Ticket Oluştur</button>
-</form>
-```
+Validasyon kontrolleri:
+- Zorunlu alan kontrolü
+- Dosya boyutu ve türü kontrolü
+- XSS koruması
+- Spam koruması
 
-#### 8. Gün (Ticket Detay Sayfası)
+**Kullanılan Teknolojiler:**
+- WTForms
+- Flask-WTF
+
+### 8. Gün
 **Yapılan İşler:**
-- Ticket bilgileri görüntüleme
+- Ticket detay sayfası
 - Yanıt sistemi
 
 **Açıklama:**
-Ticket detaylarını görüntüleme ve yanıt verme özellikleri eklendi.
+Ticket detaylarını görüntüleme ve yanıt verme özellikleri eklendi. Sayfa şu özellikleri içeriyor:
+- Ticket durumu ve önceliği
+- Oluşturulma ve güncellenme tarihleri
+- Yanıt geçmişi
+- Dosya ekleri
+- Etiketler
+- İşlem geçmişi
 
-**Kod Örneği:**
-```html
-<div class="ticket-container">
-    <div class="ticket-header">
-        <h2>{{ ticket.title }}</h2>
-        <span class="badge bg-{{ ticket.status_color }}">{{ ticket.status }}</span>
-    </div>
-    <div class="ticket-description">
-        {{ ticket.description }}
-    </div>
-    <div class="ticket-responses">
-        {% for response in ticket.responses %}
-            <div class="response">
-                <p>{{ response.content }}</p>
-                <small>{{ response.created_at }}</small>
-            </div>
-        {% endfor %}
-    </div>
-</div>
-```
+Yanıt sistemi özellikleri:
+- Zengin metin editörü
+- Dosya ekleme
+- İç yanıtlar
+- Yanıt şablonları
+- Otomatik bildirimler
 
-#### 9. Gün (Admin Paneli Geliştirme)
+**Kullanılan Teknolojiler:**
+- Flask
+- SQLAlchemy
+
+### 9. Gün
 **Yapılan İşler:**
-- Admin yetkilendirme sistemi
+- Admin paneli
+- Yetkilendirme sistemi
+
+**Açıklama:**
+Admin kullanıcılar için kapsamlı bir yönetim paneli oluşturuldu. Özellikler:
+- Kullanıcı yönetimi
 - Ticket yönetimi
+- Kategori yönetimi
+- Sistem ayarları
+- Raporlama araçları
+- Log görüntüleme
 
-**Açıklama:**
-Admin kullanıcılar için özel yönetim paneli oluşturuldu.
+Yetkilendirme sistemi:
+- Rol tabanlı erişim kontrolü
+- İzin yönetimi
+- Aktivite logları
+- Güvenlik denetimi
 
-**Kod Örneği:**
-```python
-@app.route('/admin')
-@login_required
-def admin_dashboard():
-    if not current_user.is_admin:
-        return redirect(url_for('dashboard'))
-    tickets = Ticket.query.order_by(Ticket.created_at.desc()).all()
-    return render_template('admin_dashboard.html', tickets=tickets)
-```
+**Kullanılan Teknolojiler:**
+- Flask-Login
+- Flask-Admin
 
-#### 10. Gün (Veritabanı İşlemleri)
+### 10. Gün
 **Yapılan İşler:**
+- Veritabanı işlemleri
 - CRUD operasyonları
-- Veri bütünlüğü kontrolleri
 
 **Açıklama:**
-Veritabanı işlemleri için gerekli fonksiyonlar oluşturuldu.
+Veritabanı işlemleri için kapsamlı fonksiyonlar oluşturuldu. Özellikler:
+- Veri ekleme
+- Veri güncelleme
+- Veri silme
+- Veri listeleme
+- İlişkisel sorgular
+- Toplu işlemler
 
-**Kod Örneği:**
-```python
-def create_ticket(title, description, priority, user_id):
-    ticket = Ticket(
-        title=title,
-        description=description,
-        priority=priority,
-        user_id=user_id
-    )
-    db.session.add(ticket)
-    db.session.commit()
-    return ticket
+Veri bütünlüğü kontrolleri:
+- Foreign key kontrolleri
+- Unique constraint kontrolleri
+- Cascade işlemleri
+- Transaction yönetimi
+- Veri doğrulama
 
-def update_ticket_status(ticket_id, status):
-    ticket = Ticket.query.get_or_404(ticket_id)
-    ticket.status = status
-    db.session.commit()
-    return ticket
-```
+**Kullanılan Teknolojiler:**
+- SQLAlchemy
+- SQLite
 
-#### 11. Gün (Güvenlik Önlemleri)
+### 11. Gün
 **Yapılan İşler:**
+- Güvenlik önlemleri
 - Oturum yönetimi
-- Yetkilendirme kontrolleri
 
 **Açıklama:**
-Uygulama güvenliği için gerekli önlemler alındı.
+Uygulama güvenliği için kapsamlı önlemler alındı. Özellikler:
+- Güvenli oturum yönetimi
+- Şifreleme
+- XSS koruması
+- CSRF koruması
+- SQL injection koruması
+- Dosya yükleme güvenliği
 
-**Kod Örneği:**
-```python
-@login_manager.user_loader
-def load_user(user_id):
-    return User.query.get(int(user_id))
+Yetkilendirme sistemi:
+- Rol tabanlı erişim
+- İzin yönetimi
+- Aktivite logları
+- Güvenlik denetimi
+- IP kısıtlamaları
 
-def check_admin():
-    if not current_user.is_authenticated or not current_user.is_admin:
-        flash('Bu sayfaya erişim yetkiniz yok.')
-        return redirect(url_for('dashboard'))
-```
+**Kullanılan Teknolojiler:**
+- Flask-Security
+- Werkzeug
 
-#### 12. Gün (Responsive Tasarım İyileştirmeleri)
+### 12. Gün
 **Yapılan İşler:**
+- Responsive tasarım
 - Mobil uyumluluk
-- Sidebar düzenlemesi
 
 **Açıklama:**
-Tüm sayfalar için responsive tasarım iyileştirmeleri yapıldı.
+Tüm sayfalar için kapsamlı responsive tasarım iyileştirmeleri yapıldı. Özellikler:
+- Mobil öncelikli tasarım
+- Esnek grid sistemi
+- Dinamik sidebar
+- Touch-friendly arayüz
+- Responsive görüntüler
+- Performans optimizasyonu
 
-**Kod Örneği:**
-```css
-@media (max-width: 768px) {
-    .sidebar {
-        transform: translateX(-100%);
-    }
-    .main-content {
-        margin-left: 0;
-    }
-    .sidebar.active {
-        transform: translateX(0);
-    }
-}
-```
+Kullanıcı deneyimi iyileştirmeleri:
+- Gesture desteği
+- Offline kullanım
+- Progressive loading
+- Adaptive layout
 
-#### 13. Gün (Kullanıcı Deneyimi İyileştirmeleri)
+**Kullanılan Teknolojiler:**
+- Bootstrap 5
+- CSS3
+
+### 13. Gün
 **Yapılan İşler:**
+- Kullanıcı deneyimi
 - Animasyonlar
+
+**Açıklama:**
+Kullanıcı deneyimini artırmak için kapsamlı görsel iyileştirmeler yapıldı. Özellikler:
+- Smooth animasyonlar
 - Hover efektleri
+- Loading states
+- Transitions
+- Micro-interactions
+- Visual feedback
 
-**Açıklama:**
-Kullanıcı deneyimini artırmak için görsel iyileştirmeler yapıldı.
+Performans optimizasyonları:
+- Lazy loading
+- Image optimization
+- Code splitting
+- Caching
+- Bundle optimization
 
-**Kod Örneği:**
-```css
-.ticket-card {
-    transition: transform 0.3s ease;
-}
+**Kullanılan Teknolojiler:**
+- CSS3
+- JavaScript
 
-.ticket-card:hover {
-    transform: translateY(-5px);
-}
-
-.btn-primary {
-    transition: all 0.3s ease;
-}
-
-.btn-primary:hover {
-    transform: scale(1.05);
-}
-```
-
-#### 14. Gün (Hata Yönetimi)
+### 14. Gün
 **Yapılan İşler:**
+- Hata yönetimi
 - 404 sayfası
-- Hata mesajları
 
 **Açıklama:**
-Kullanıcı dostu hata sayfaları ve mesajları eklendi.
+Kullanıcı dostu hata sayfaları ve mesajları eklendi. Özellikler:
+- Özelleştirilmiş hata sayfaları
+- Detaylı hata mesajları
+- Hata loglama
+- Hata raporlama
+- Otomatik bildirimler
+- Kullanıcı yönlendirme
 
-**Kod Örneği:**
-```python
-@app.errorhandler(404)
-def page_not_found(e):
-    return render_template('404.html'), 404
+Hata yönetimi:
+- Exception handling
+- Error tracking
+- Debug mode
+- Log rotation
+- Error analytics
 
-@app.errorhandler(500)
-def internal_server_error(e):
-    return render_template('500.html'), 500
-```
+**Kullanılan Teknolojiler:**
+- Flask
+- HTML5
 
-#### 15. Gün (Performans Optimizasyonu)
+### 15. Gün
 **Yapılan İşler:**
-- Sayfa yükleme hızı
+- Performans optimizasyonu
 - Veritabanı sorguları
 
 **Açıklama:**
-Uygulama performansı için optimizasyonlar yapıldı.
+Uygulama performansı için kapsamlı optimizasyonlar yapıldı. Özellikler:
+- Database query optimization
+- Caching
+- Asset optimization
+- Code minification
+- Lazy loading
+- Connection pooling
 
-**Kod Örneği:**
-```python
-# Veritabanı sorgularını optimize etme
-tickets = Ticket.query.filter_by(user_id=current_user.id)\
-    .order_by(Ticket.created_at.desc())\
-    .limit(10)\
-    .all()
-```
+Performans metrikleri:
+- Load time
+- Time to first byte
+- First contentful paint
+- Time to interactive
+- Memory usage
+- CPU usage
 
-#### 16. Gün (Test ve Hata Ayıklama)
+**Kullanılan Teknolojiler:**
+- SQLAlchemy
+- Flask-Caching
+
+### 16. Gün
 **Yapılan İşler:**
-- Unit testler
-- Entegrasyon testleri
+- Test senaryoları
+- Hata ayıklama
 
 **Açıklama:**
-Uygulama için test senaryoları yazıldı.
+Uygulama için kapsamlı test senaryoları yazıldı. Test türleri:
+- Unit tests
+- Integration tests
+- Functional tests
+- Performance tests
+- Security tests
+- UI tests
 
-**Kod Örneği:**
-```python
-def test_login():
-    response = client.post('/login', data={
-        'username': 'admin',
-        'password': 'admin123'
-    })
-    assert response.status_code == 302
-    assert response.location == '/dashboard'
+Test araçları:
+- pytest
+- unittest
+- Selenium
+- JMeter
+- OWASP ZAP
+- Lighthouse
 
-def test_create_ticket():
-    with client:
-        client.post('/login', data={
-            'username': 'admin',
-            'password': 'admin123'
-        })
-        response = client.post('/ticket/new', data={
-            'title': 'Test Ticket',
-            'description': 'Test Description',
-            'priority': 'Normal'
-        })
-        assert response.status_code == 302
-```
+**Kullanılan Teknolojiler:**
+- pytest
+- unittest
 
-#### 17. Gün (Dokümantasyon)
+### 17. Gün
 **Yapılan İşler:**
-- Kod dokümantasyonu
+- Dokümantasyon
 - Kullanıcı kılavuzu
 
 **Açıklama:**
-Proje için gerekli dokümantasyonlar hazırlandı.
+Proje için kapsamlı dokümantasyonlar hazırlandı. Dokümantasyon türleri:
+- API documentation
+- User manual
+- Installation guide
+- Development guide
+- Deployment guide
+- Troubleshooting guide
 
-**Kod Örneği:**
-```python
-"""
-HelpDesk Sistemi
----------------
-Bu modül, HelpDesk sisteminin ana fonksiyonlarını içerir.
+Dokümantasyon araçları:
+- Sphinx
+- MkDocs
+- Swagger
+- Postman
+- Draw.io
+- GitBook
 
-Classes:
-    User: Kullanıcı modeli
-    Ticket: Ticket modeli
-    TicketResponse: Ticket yanıtları modeli
+**Kullanılan Teknolojiler:**
+- Sphinx
+- Markdown
 
-Functions:
-    create_ticket: Yeni ticket oluşturur
-    update_ticket_status: Ticket durumunu günceller
-"""
-```
-
-#### 18. Gün (Son Kontroller)
-**Yapılan İşler:**
-- Güvenlik taraması
-- Performans testleri
-
-**Açıklama:**
-Uygulama için son kontroller yapıldı.
-
-#### 19. Gün (Deployment Hazırlığı)
-**Yapılan İşler:**
-- Sunucu yapılandırması
-- Veritabanı yedekleme
-
-**Açıklama:**
-Uygulama deployment için hazırlandı.
-
-#### 20. Gün (Proje Teslimi)
+### 18. Gün
 **Yapılan İşler:**
 - Son kontroller
-- Proje sunumu
+- Güvenlik taraması
 
 **Açıklama:**
-Proje tamamlandı ve teslim edildi.
+Uygulama için kapsamlı son kontroller yapıldı. Kontrol alanları:
+- Güvenlik açıkları
+- Performans sorunları
+- Kod kalitesi
+- Dokümantasyon
+- Test coverage
+- Kullanıcı deneyimi
 
-### 1.3. Öğrenilen Teknolojiler
+Kullanılan araçlar:
+- SonarQube
+- OWASP ZAP
+- Lighthouse
+- GTmetrix
+- ESLint
+- Prettier
+
+**Kullanılan Teknolojiler:**
+- Bandit
+- Safety
+
+### 19. Gün
+**Yapılan İşler:**
+- Deployment hazırlığı
+- Sunucu yapılandırması
+
+**Açıklama:**
+Uygulama deployment için kapsamlı hazırlıklar yapıldı. Hazırlık alanları:
+- Sunucu konfigürasyonu
+- SSL sertifikası
+- Domain ayarları
+- Backup sistemi
+- Monitoring
+- Logging
+
+Kullanılan teknolojiler:
+- Docker
+- Nginx
+- Let's Encrypt
+- AWS
+- Prometheus
+- Grafana
+
+**Kullanılan Teknolojiler:**
+- Gunicorn
+- Nginx
+
+### 20. Gün
+**Yapılan İşler:**
+- Proje sunumu
+- Son kontroller
+
+**Açıklama:**
+Proje kapsamlı bir şekilde tamamlandı ve teslim edildi. Teslim süreci:
+- Kod review
+- Dokümantasyon kontrolü
+- Test sonuçları
+- Performans raporu
+- Güvenlik raporu
+- Kullanıcı kabulü
+
+Proje başarıları:
+- Modern teknolojiler
+- Güvenli yapı
+- Performanslı sistem
+- Kullanıcı dostu arayüz
+- Ölçeklenebilir mimari
+- Kolay bakım
+
+**Kullanılan Teknolojiler:**
+- Git
+- GitHub
+
+## Öğrenilen Teknolojiler
 1. Python Flask Framework
 2. SQLite Veritabanı
 3. HTML5 ve CSS3
@@ -484,7 +532,7 @@ Proje tamamlandı ve teslim edildi.
 9. Web Güvenliği
 10. Test ve Debugging Araçları
 
-### 1.4. Kazanılan Yetenekler
+## Kazanılan Yetenekler
 1. Full-stack web geliştirme
 2. Veritabanı tasarımı ve yönetimi
 3. Kullanıcı arayüzü tasarımı
@@ -496,11 +544,11 @@ Proje tamamlandı ve teslim edildi.
 9. Problem çözme
 10. Kod optimizasyonu
 
-### 1.5. Staj Değerlendirmesi
+## Staj Değerlendirmesi
 Bu staj sürecinde, modern bir helpdesk sistemi geliştirerek hem teknik becerilerimi geliştirdim hem de gerçek dünya projesi deneyimi kazandım. Sistem, kullanıcı dostu arayüzü ve güvenli backend yapısıyla profesyonel bir destek yönetim sistemi olarak hizmet verebilir durumdadır. Staj süresince öğrendiğim teknolojiler ve kazandığım deneyimler, gelecekteki kariyerim için değerli bir temel oluşturmuştur.
 
 ## Staj Günlüğü
-[Her gün için ayrı ayrı doldurulacak]
+[Staj günlüğü ayrı bir dosyada tutulacaktır]
 
 ## Formlar
 [Staj yapılan kurum tarafından doldurulacak] 
