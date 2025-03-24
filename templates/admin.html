@@ -1,0 +1,419 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Admin Paneli</h2>
+    
+    <!-- İstatistikler -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Toplam Ticket</h5>
+                    <h2 class="card-text">{{ total_tickets }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Çözülen Ticket</h5>
+                    <h2 class="card-text">{{ resolved_tickets }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Bekleyen Ticket</h5>
+                    <h2 class="card-text">{{ pending_tickets }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-danger text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Acil Ticket</h5>
+                    <h2 class="card-text">{{ urgent_tickets }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Kullanıcı Yönetimi -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">Kullanıcı Yönetimi</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Kullanıcı Adı</th>
+                            <th>E-posta</th>
+                            <th>Şirket</th>
+                            <th>Departman</th>
+                            <th>Pozisyon</th>
+                            <th>Telefon</th>
+                            <th>Kayıt Tarihi</th>
+                            <th>Rol</th>
+                            <th>İşlemler</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                        <tr>
+                            <td>{{ user.id }}</td>
+                            <td>{{ user.username }}</td>
+                            <td>{{ user.email }}</td>
+                            <td>{{ user.company_name }}</td>
+                            <td>{{ user.department }}</td>
+                            <td>{{ user.position }}</td>
+                            <td>{{ user.phone }}</td>
+                            <td>{{ user.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                            <td>
+                                <span class="badge {% if user.is_admin %}bg-danger{% else %}bg-primary{% endif %}">
+                                    {{ 'Admin' if user.is_admin else 'Kullanıcı' }}
+                                </span>
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-primary edit-user" data-user-id="{{ user.id }}">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <button class="btn btn-sm btn-danger delete-user" data-user-id="{{ user.id }}">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ticket Yönetimi -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">Ticket Yönetimi</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Başlık</th>
+                            <th>Kategori</th>
+                            <th>Öncelik</th>
+                            <th>Durum</th>
+                            <th>Oluşturan</th>
+                            <th>Tarih</th>
+                            <th>İşlemler</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ticket in tickets %}
+                        <tr>
+                            <td>{{ ticket.id }}</td>
+                            <td>{{ ticket.title }}</td>
+                            <td>{{ ticket.category }}</td>
+                            <td>
+                                {% if ticket.priority == 'high' %}
+                                <span class="badge bg-danger">Yüksek</span>
+                                {% elif ticket.priority == 'medium' %}
+                                <span class="badge bg-warning">Orta</span>
+                                {% else %}
+                                <span class="badge bg-info">Düşük</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if ticket.status == 'open' %}
+                                <span class="badge bg-success">Açık</span>
+                                {% elif ticket.status == 'pending' %}
+                                <span class="badge bg-warning">Beklemede</span>
+                                {% elif ticket.status == 'resolved' %}
+                                <span class="badge bg-info">Çözüldü</span>
+                                {% else %}
+                                <span class="badge bg-secondary">Kapalı</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ ticket.user.username }}</td>
+                            <td>{{ ticket.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                            <td>
+                                <a href="{{ url_for('ticket_detail', ticket_id=ticket.id) }}" class="btn btn-sm btn-info">Detay</a>
+                                <button class="btn btn-sm btn-warning" onclick="editTicket({{ ticket.id }})">Düzenle</button>
+                                <button class="btn btn-sm btn-danger" onclick="deleteTicket({{ ticket.id }})">Sil</button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Kategori Yönetimi -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Kategori Yönetimi</h5>
+        </div>
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('add_category') }}" class="mb-3">
+                <div class="input-group">
+                    <input type="text" name="category_name" class="form-control" placeholder="Yeni kategori adı" required>
+                    <button type="submit" class="btn btn-primary">Ekle</button>
+                </div>
+            </form>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Kategori Adı</th>
+                            <th>Ticket Sayısı</th>
+                            <th>İşlemler</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for category in categories %}
+                        <tr>
+                            <td>{{ category.id }}</td>
+                            <td>{{ category.name }}</td>
+                            <td>{{ category.ticket_count }}</td>
+                            <td>
+                                <button class="btn btn-sm btn-warning" onclick="editCategory({{ category.id }})">Düzenle</button>
+                                <button class="btn btn-sm btn-danger" onclick="deleteCategory({{ category.id }})">Sil</button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Kullanıcı Düzenleme Modal -->
+<div class="modal fade" id="editUserModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Kullanıcı Düzenle</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editUserForm">
+                    <input type="hidden" id="editUserId">
+                    <div class="mb-3">
+                        <label for="editUsername" class="form-label">Kullanıcı Adı</label>
+                        <input type="text" class="form-control" id="editUsername" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editEmail" class="form-label">E-posta</label>
+                        <input type="email" class="form-control" id="editEmail" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editCompanyName" class="form-label">Şirket Adı</label>
+                        <input type="text" class="form-control" id="editCompanyName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editDepartment" class="form-label">Departman</label>
+                        <input type="text" class="form-control" id="editDepartment" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editPosition" class="form-label">Pozisyon</label>
+                        <input type="text" class="form-control" id="editPosition" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editPhone" class="form-label">Telefon</label>
+                        <input type="tel" class="form-control" id="editPhone" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editRole" class="form-label">Rol</label>
+                        <select class="form-select" id="editRole">
+                            <option value="user">Kullanıcı</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                <button type="button" class="btn btn-primary" id="saveUserChanges">Kaydet</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Ticket Düzenleme Modal -->
+<div class="modal fade" id="editTicketModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Ticket Düzenle</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editTicketForm" method="POST">
+                    <input type="hidden" name="ticket_id" id="editTicketId">
+                    <div class="mb-3">
+                        <label class="form-label">Başlık</label>
+                        <input type="text" class="form-control" name="title" id="editTitle" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Kategori</label>
+                        <select class="form-select" name="category" id="editCategory" required>
+                            {% for category in categories %}
+                            <option value="{{ category.id }}">{{ category.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Öncelik</label>
+                        <select class="form-select" name="priority" id="editPriority" required>
+                            <option value="low">Düşük</option>
+                            <option value="medium">Orta</option>
+                            <option value="high">Yüksek</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Durum</label>
+                        <select class="form-select" name="status" id="editStatus" required>
+                            <option value="open">Açık</option>
+                            <option value="pending">Beklemede</option>
+                            <option value="resolved">Çözüldü</option>
+                            <option value="closed">Kapalı</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Kaydet</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Kategori Düzenleme Modal -->
+<div class="modal fade" id="editCategoryModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Kategori Düzenle</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editCategoryForm" method="POST">
+                    <input type="hidden" name="category_id" id="editCategoryId">
+                    <div class="mb-3">
+                        <label class="form-label">Kategori Adı</label>
+                        <input type="text" class="form-control" name="name" id="editCategoryName" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Kaydet</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Kullanıcı düzenleme
+$('.edit-user').click(function() {
+    const userId = $(this).data('user-id');
+    $.get(`/api/users/${userId}`, function(user) {
+        $('#editUserId').val(user.id);
+        $('#editUsername').val(user.username);
+        $('#editEmail').val(user.email);
+        $('#editCompanyName').val(user.company_name);
+        $('#editDepartment').val(user.department);
+        $('#editPosition').val(user.position);
+        $('#editPhone').val(user.phone);
+        $('#editRole').val(user.is_admin ? 'admin' : 'user');
+        $('#editUserModal').modal('show');
+    });
+});
+
+$('#saveUserChanges').click(function() {
+    const userId = $('#editUserId').val();
+    const userData = {
+        username: $('#editUsername').val(),
+        email: $('#editEmail').val(),
+        company_name: $('#editCompanyName').val(),
+        department: $('#editDepartment').val(),
+        position: $('#editPosition').val(),
+        phone: $('#editPhone').val(),
+        role: $('#editRole').val()
+    };
+    
+    $.ajax({
+        url: `/api/users/${userId}`,
+        method: 'PUT',
+        contentType: 'application/json',
+        data: JSON.stringify(userData),
+        success: function() {
+            location.reload();
+        },
+        error: function() {
+            alert('Kullanıcı güncellenirken bir hata oluştu.');
+        }
+    });
+});
+
+// Ticket düzenleme
+function editTicket(ticketId) {
+    // API'den ticket bilgilerini al
+    fetch(`/api/tickets/${ticketId}`)
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('editTicketId').value = data.id;
+            document.getElementById('editTitle').value = data.title;
+            document.getElementById('editCategory').value = data.category_id;
+            document.getElementById('editPriority').value = data.priority;
+            document.getElementById('editStatus').value = data.status;
+            new bootstrap.Modal(document.getElementById('editTicketModal')).show();
+        });
+}
+
+// Ticket silme
+function deleteTicket(ticketId) {
+    if (confirm('Bu ticketı silmek istediğinizden emin misiniz?')) {
+        fetch(`/api/tickets/${ticketId}`, { method: 'DELETE' })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                }
+            });
+    }
+}
+
+// Kategori düzenleme
+function editCategory(categoryId) {
+    // API'den kategori bilgilerini al
+    fetch(`/api/categories/${categoryId}`)
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('editCategoryId').value = data.id;
+            document.getElementById('editCategoryName').value = data.name;
+            new bootstrap.Modal(document.getElementById('editCategoryModal')).show();
+        });
+}
+
+// Kategori silme
+function deleteCategory(categoryId) {
+    if (confirm('Bu kategoriyi silmek istediğinizden emin misiniz?')) {
+        fetch(`/api/categories/${categoryId}`, { method: 'DELETE' })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                }
+            });
+    }
+}
+</script>
+{% endblock %} 
