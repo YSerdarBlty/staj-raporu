@@ -1,94 +1,50 @@
 {% extends "base.html" %}
 
-{% block title %}Yeni Ticket - Help Desk{% endblock %}
+{% block title %}Yeni Ticket{% endblock %}
 
 {% block content %}
-<div class="container py-4">
+<div class="container">
     <div class="row justify-content-center">
         <div class="col-md-8">
-            <div class="card shadow-sm">
-                <div class="card-header bg-white">
-                    <h5 class="mb-0">
-                        <i class="bi bi-plus-circle me-2"></i>Yeni Ticket Oluştur
-                    </h5>
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Yeni Ticket Oluştur</h5>
                 </div>
                 <div class="card-body">
-                    <form method="POST" action="{{ url_for('new_ticket') }}">
+                    <form method="POST">
                         <div class="mb-3">
                             <label for="title" class="form-label">Başlık</label>
-                            <div class="input-group">
-                                <span class="input-group-text">
-                                    <i class="bi bi-pencil"></i>
-                                </span>
-                                <input type="text" class="form-control" id="title" name="title" required>
-                            </div>
+                            <input type="text" class="form-control" id="title" name="title" required>
                         </div>
-
+                        <div class="mb-3">
+                            <label for="category_id" class="form-label">Kategori</label>
+                            <select class="form-select" id="category_id" name="category_id" required>
+                                <option value="">Kategori Seçin</option>
+                                {% for category in categories %}
+                                <option value="{{ category.id }}">{{ category.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="priority" class="form-label">Öncelik</label>
+                            <select class="form-select" id="priority" name="priority" required>
+                                <option value="">Öncelik Seçin</option>
+                                <option value="low">Düşük</option>
+                                <option value="medium">Orta</option>
+                                <option value="high">Yüksek</option>
+                            </select>
+                        </div>
                         <div class="mb-3">
                             <label for="description" class="form-label">Açıklama</label>
-                            <div class="input-group">
-                                <span class="input-group-text">
-                                    <i class="bi bi-text-paragraph"></i>
-                                </span>
-                                <textarea class="form-control" id="description" name="description" rows="5" required></textarea>
-                            </div>
+                            <textarea class="form-control" id="description" name="description" rows="5" required></textarea>
                         </div>
-
-                        <div class="mb-3">
-                            <label for="category" class="form-label">Kategori</label>
-                            <div class="input-group">
-                                <span class="input-group-text">
-                                    <i class="bi bi-tag"></i>
-                                </span>
-                                <select class="form-select" id="category" name="category" required>
-                                    <option value="">Kategori Seçin</option>
-                                    <option value="technical">Teknik Destek</option>
-                                    <option value="software">Yazılım</option>
-                                    <option value="hardware">Donanım</option>
-                                    <option value="network">Ağ</option>
-                                    <option value="other">Diğer</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="mb-4">
-                            <label for="priority" class="form-label">Öncelik</label>
-                            <div class="input-group">
-                                <span class="input-group-text">
-                                    <i class="bi bi-exclamation-circle"></i>
-                                </span>
-                                <select class="form-select" id="priority" name="priority" required>
-                                    <option value="low">Düşük</option>
-                                    <option value="medium" selected>Normal</option>
-                                    <option value="high">Yüksek</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div id="aiSuggestions" class="alert alert-info d-none">
-                            <h6 class="mb-3">
-                                <i class="bi bi-lightbulb me-2"></i>AI Önerileri
-                            </h6>
-                            <div class="mb-2">
-                                <strong>Önerilen Kategori:</strong>
-                                <span id="suggestedCategory" class="badge bg-info ms-2"></span>
-                            </div>
-                            <div>
-                                <strong>Olası Çözüm:</strong>
-                                <p id="suggestedSolution" class="mb-0 mt-2"></p>
-                            </div>
-                            <button type="button" class="btn btn-sm btn-outline-primary mt-3" onclick="applySuggestions()">
-                                <i class="bi bi-check-circle me-1"></i>Önerileri Uygula
-                            </button>
-                        </div>
-
-                        <div class="d-flex justify-content-between">
-                            <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary">
-                                <i class="bi bi-arrow-left me-2"></i>Geri Dön
-                            </a>
+                        <div class="d-grid gap-2">
                             <button type="submit" class="btn btn-primary">
-                                <i class="bi bi-plus-circle me-2"></i>Oluştur
+                                <i class="bi bi-plus-circle me-1"></i>Ticket Oluştur
                             </button>
+                            <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left me-1"></i>Geri Dön
+                            </a>
                         </div>
                     </form>
                 </div>
@@ -96,57 +52,4 @@
         </div>
     </div>
 </div>
-
-<script>
-let debounceTimer;
-
-document.getElementById('description').addEventListener('input', function() {
-    clearTimeout(debounceTimer);
-    debounceTimer = setTimeout(() => {
-        fetchAISuggestions();
-    }, 500);
-});
-
-function fetchAISuggestions() {
-    const description = document.getElementById('description').value;
-    if (description.length < 10) {
-        document.getElementById('aiSuggestions').classList.add('d-none');
-        return;
-    }
-
-    fetch('/api/ai/suggestions', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ description: description })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.category) {
-            document.getElementById('suggestedCategory').textContent = data.category;
-            document.getElementById('suggestedSolution').textContent = data.solution;
-            document.getElementById('aiSuggestions').classList.remove('d-none');
-        } else {
-            document.getElementById('aiSuggestions').classList.add('d-none');
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        document.getElementById('aiSuggestions').classList.add('d-none');
-    });
-}
-
-function applySuggestions() {
-    const category = document.getElementById('suggestedCategory').textContent;
-    const categorySelect = document.getElementById('category');
-    
-    for (let option of categorySelect.options) {
-        if (option.text === category) {
-            categorySelect.value = option.value;
-            break;
-        }
-    }
-}
-</script>
 {% endblock %} 

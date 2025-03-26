@@ -1,15 +1,23 @@
 {% extends "base.html" %}
 
-{% block title %}Dashboard - Help Desk{% endblock %}
+{% block title %}Dashboard{% endblock %}
 
 {% block content %}
-<div class="container py-4">
+<div class="container-fluid">
     <div class="row mb-4">
         <div class="col-md-4">
             <div class="card bg-primary text-white">
                 <div class="card-body">
                     <h5 class="card-title">Açık Ticketlar</h5>
                     <h2 class="card-text">{{ open_tickets }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <h5 class="card-title">İşlemdeki Ticketlar</h5>
+                    <h2 class="card-text">{{ in_progress_tickets }}</h2>
                 </div>
             </div>
         </div>
@@ -21,24 +29,14 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="card bg-warning text-white">
-                <div class="card-body">
-                    <h5 class="card-title">İşlemdeki Ticketlar</h5>
-                    <h2 class="card-text">{{ pending_tickets }}</h2>
-                </div>
-            </div>
-        </div>
     </div>
 
     <div class="card">
-        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <div class="card-header d-flex justify-content-between align-items-center">
             <h5 class="mb-0">Ticketlar</h5>
-            {% if current_user.is_admin %}
             <a href="{{ url_for('new_ticket') }}" class="btn btn-primary">
                 <i class="bi bi-plus-circle me-1"></i>Yeni Ticket
             </a>
-            {% endif %}
         </div>
         <div class="card-body">
             <div class="table-responsive">
@@ -48,10 +46,9 @@
                             <th>ID</th>
                             <th>Başlık</th>
                             <th>Kategori</th>
-                            <th>Durum</th>
                             <th>Öncelik</th>
-                            <th>Oluşturan</th>
-                            <th>Tarih</th>
+                            <th>Durum</th>
+                            <th>Oluşturulma Tarihi</th>
                             <th>İşlemler</th>
                         </tr>
                     </thead>
@@ -60,31 +57,31 @@
                         <tr>
                             <td>#{{ ticket.id }}</td>
                             <td>{{ ticket.title }}</td>
-                            <td><span class="badge bg-info">{{ ticket.category.name }}</span></td>
+                            <td>{{ ticket.category.name }}</td>
                             <td>
-                                {% if ticket.status == 'Açık' %}
-                                <span class="badge bg-primary">{{ ticket.status }}</span>
-                                {% elif ticket.status == 'Çözüldü' %}
-                                <span class="badge bg-success">{{ ticket.status }}</span>
-                                {% elif ticket.status == 'İşlemde' %}
-                                <span class="badge bg-warning">{{ ticket.status }}</span>
-                                {% endif %}
+                                <span class="badge bg-{{ 'danger' if ticket.priority == 'high' else 'warning' if ticket.priority == 'medium' else 'info' }}">
+                                    {{ ticket.priority }}
+                                </span>
                             </td>
                             <td>
-                                {% if ticket.priority == 'low' %}
-                                <span class="badge bg-info">Düşük</span>
-                                {% elif ticket.priority == 'medium' %}
-                                <span class="badge bg-warning">Normal</span>
-                                {% elif ticket.priority == 'high' %}
-                                <span class="badge bg-danger">Yüksek</span>
-                                {% endif %}
+                                <span class="badge bg-{{ 'primary' if ticket.status == 'open' else 'warning' if ticket.status == 'in_progress' else 'success' }}">
+                                    {{ ticket.status }}
+                                </span>
                             </td>
-                            <td>{{ ticket.user.username }}</td>
                             <td>{{ ticket.created_at.strftime('%d.%m.%Y %H:%M') }}</td>
                             <td>
-                                <a href="{{ url_for('ticket_detail', ticket_id=ticket.id) }}" class="btn btn-sm btn-info">
-                                    <i class="bi bi-eye"></i>
-                                </a>
+                                <div class="btn-group">
+                                    <a href="{{ url_for('ticket_detail', ticket_id=ticket.id) }}" class="btn btn-sm btn-info">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    {% if current_user.is_admin or ticket.user_id == current_user.id %}
+                                    <form action="{{ url_for('delete_ticket', ticket_id=ticket.id) }}" method="POST" class="d-inline">
+                                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Bu ticketı silmek istediğinizden emin misiniz?')">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                    {% endif %}
+                                </div>
                             </td>
                         </tr>
                         {% endfor %}
@@ -94,64 +91,4 @@
         </div>
     </div>
 </div>
-
-<script>
-// Ticket durumu değiştiğinde sayıları güncelle
-function updateTicketCounts() {
-    $.get('/api/tickets/counts', function(response) {
-        if (response.success) {
-            $('#open-tickets-count').text(response.open);
-            $('#resolved-tickets-count').text(response.resolved);
-            $('#pending-tickets-count').text(response.pending);
-        }
-    });
-}
-
-// Sayfa yüklendiğinde sayıları güncelle
-$(document).ready(function() {
-    updateTicketCounts();
-});
-
-// Ticket durumu değiştiğinde sayıları güncelle
-$('.status-form').on('submit', function(e) {
-    e.preventDefault();
-    const form = $(this);
-    const ticketId = form.data('ticket-id');
-    
-    $.ajax({
-        url: `/ticket/${ticketId}/status`,
-        type: 'POST',
-        data: form.serialize(),
-        success: function(response) {
-            if (response.success) {
-                // Sayıları güncelle
-                updateTicketCounts();
-                
-                // Başarı mesajını göster
-                Swal.fire({
-                    title: 'Başarılı!',
-                    text: response.message,
-                    icon: 'success',
-                    confirmButtonText: 'Tamam'
-                });
-            } else {
-                Swal.fire({
-                    title: 'Hata!',
-                    text: response.error || 'Durum güncellenirken bir hata oluştu.',
-                    icon: 'error',
-                    confirmButtonText: 'Tamam'
-                });
-            }
-        },
-        error: function() {
-            Swal.fire({
-                title: 'Hata!',
-                text: 'Sunucu hatası oluştu. Lütfen tekrar deneyin.',
-                icon: 'error',
-                confirmButtonText: 'Tamam'
-            });
-        }
-    });
-});
-</script>
 {% endblock %} 
