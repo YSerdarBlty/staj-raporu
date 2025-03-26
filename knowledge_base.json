@@ -1,0 +1,33 @@
+{
+    "genel": {
+        "context": "\n                Help Desk sistemi, kullanıcıların teknik sorunlarını çözmek için tasarlanmış bir destek platformudur.\n                Kullanıcılar ticket açabilir, yöneticiler yanıt verebilir.\n                Ticketlar farklı kategorilerde ve öncelik seviyelerinde olabilir.\n                ",
+        "qa_pairs": [
+            {
+                "soru": "Nasıl yeni ticket açabilirim?",
+                "cevap": "Dashboard'da 'Yeni Ticket' butonuna tıklayarak başlık, kategori, öncelik ve açıklama girmeniz gerekiyor."
+            },
+            {
+                "soru": "Ticket durumları ne anlama geliyor?",
+                "cevap": "Açık: Yeni açılmış ticket, İşlemde: İnceleniyor, Beklemede: Ek bilgi bekleniyor, Çözüldü: Sorun giderildi, Kapalı: İşlem tamamlandı."
+            }
+        ]
+    },
+    "null": {
+        "context": "None ile ilgili sorunlar ve çözümleri.",
+        "qa_pairs": [
+            {
+                "soru": "Lisanslarda bir gecikme oldu",
+                "cevap": "sfafasfafafas"
+            }
+        ]
+    },
+    "null": {
+        "context": "None ile ilgili sorunlar ve çözümleri.",
+        "qa_pairs": [
+            {
+                "soru": "fsagasga<qölföqwfqwfqf",
+                "cevap": "sdadada"
+            }
+        ]
+    }
+}

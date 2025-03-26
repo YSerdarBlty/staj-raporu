@@ -161,9 +161,15 @@ def dashboard():
         # Normal kullanıcı sadece kendi ticketlarını görebilir
         tickets = Ticket.query.filter_by(user_id=current_user.id).order_by(Ticket.created_at.desc()).all()
     
-    open_tickets = Ticket.query.filter_by(status='open').count()
-    resolved_tickets = Ticket.query.filter_by(status='resolved').count()
-    pending_tickets = Ticket.query.filter_by(status='in_progress').count()
+    # Durum sayılarını güncelle
+    if current_user.is_admin:
+        open_tickets = Ticket.query.filter_by(status='Açık').count()
+        resolved_tickets = Ticket.query.filter_by(status='Çözüldü').count()
+        pending_tickets = Ticket.query.filter_by(status='İşlemde').count()
+    else:
+        open_tickets = Ticket.query.filter_by(user_id=current_user.id, status='Açık').count()
+        resolved_tickets = Ticket.query.filter_by(user_id=current_user.id, status='Çözüldü').count()
+        pending_tickets = Ticket.query.filter_by(user_id=current_user.id, status='İşlemde').count()
     
     return render_template('dashboard.html', 
                          tickets=tickets,
@@ -175,6 +181,10 @@ def dashboard():
 @app.route('/ticket/new', methods=['GET', 'POST'])
 @login_required
 def new_ticket():
+    if not current_user.is_admin:
+        flash('Yeni ticket oluşturma yetkiniz yok.', 'error')
+        return redirect(url_for('dashboard'))
+        
     if request.method == 'POST':
         description = request.form.get('description')
         
@@ -185,26 +195,17 @@ def new_ticket():
             title=request.form.get('title'),
             description=description,
             priority=request.form.get('priority'),
-            category_id=suggested_category,  # Önerilen kategoriyi kullan
-            user_id=current_user.id
+            category_id=suggested_category,
+            user_id=current_user.id,
+            status='Açık'  # Başlangıç durumu
         )
         db.session.add(ticket)
         db.session.commit()
         
-        # Otomatik yanıt önerisi al
-        auto_response = ai_helpdesk.get_auto_response(description)
-        if auto_response['confidence'] > 0.8:  # Güven skoru yüksekse
-            response = TicketResponse(
-                content=auto_response['response'],
-                ticket_id=ticket.id,
-                user_id=1  # Admin kullanıcı ID'si
-            )
-            db.session.add(response)
-            db.session.commit()
-        
+        flash('Ticket başarıyla oluşturuldu.', 'success')
         return redirect(url_for('dashboard'))
     
-    categories = ['Teknik Destek', 'Yazılım', 'Donanım', 'Ağ', 'Diğer']
+    categories = Category.query.all()
     return render_template('new_ticket.html', categories=categories)
 
 # Ticket detayı
@@ -221,7 +222,7 @@ def ticket_detail(ticket_id):
         flash('Bu ticketı görüntüleme yetkiniz yok.')
         return redirect(url_for('dashboard'))
     
-    statuses = ['Açık', 'İşlemde', 'Beklemede', 'Çözüldü', 'Kapalı']
+    statuses = ['Açık', 'İşlemde', 'Çözüldü']
     return render_template('ticket_detail.html', 
                          ticket=ticket, 
                          is_admin=current_user.is_admin,
@@ -231,13 +232,11 @@ def ticket_detail(ticket_id):
 @app.route('/ticket/<int:ticket_id>/response', methods=['POST'])
 @login_required
 def add_response(ticket_id):
+    if not current_user.is_admin:
+        flash('Yanıt ekleme yetkiniz yok.', 'error')
+        return redirect(url_for('dashboard'))
+        
     ticket = Ticket.query.get_or_404(ticket_id)
-    
-    # Kullanıcı yetkisi kontrolü
-    if not current_user.is_admin and ticket.user_id != current_user.id:
-        flash('Bu ticketa yanıt ekleme yetkiniz yok.')
-        return redirect(url_for('ticket_detail', ticket_id=ticket_id))
-    
     response_content = request.form.get('content')
     
     response = TicketResponse(
@@ -248,10 +247,7 @@ def add_response(ticket_id):
     db.session.add(response)
     db.session.commit()
     
-    # Ticket çözüldüyse bilgi tabanını güncelle
-    if ticket.status == 'Çözüldü':
-        ai_helpdesk.update_knowledge_base(ticket)
-    
+    flash('Yanıt başarıyla eklendi.', 'success')
     return redirect(url_for('ticket_detail', ticket_id=ticket_id))
 
 # Ticket durumu güncelleme
@@ -259,31 +255,36 @@ def add_response(ticket_id):
 @login_required
 def update_ticket_status(ticket_id):
     if not current_user.is_admin:
-        flash('Yalnızca yöneticiler ticket durumunu değiştirebilir.')
-        return redirect(url_for('ticket_detail', ticket_id=ticket_id))
-    
-    ticket = db.session.get(Ticket, ticket_id)
-    if not ticket:
-        flash('Ticket bulunamadı.')
+        flash('Bu işlem için yetkiniz yok.', 'error')
         return redirect(url_for('dashboard'))
     
+    ticket = Ticket.query.get_or_404(ticket_id)
     new_status = request.form.get('status')
     note = request.form.get('note', '')
     
-    if new_status and new_status != ticket.status:
-        # Durum değişikliğini kaydet
-        history = TicketStatusHistory(
-            ticket_id=ticket.id,
-            old_status=ticket.status,
-            new_status=new_status,
-            changed_by_id=current_user.id,
-            note=note
-        )
-        ticket.status = new_status
+    if new_status not in ['Açık', 'Çözüldü', 'İşlemde']:
+        flash('Geçersiz durum.', 'error')
+        return redirect(url_for('ticket_detail', ticket_id=ticket_id))
+    
+    # Durum geçmişi oluştur
+    history = TicketStatusHistory(
+        ticket_id=ticket.id,
+        changed_by_id=current_user.id,
+        old_status=ticket.status,
+        new_status=new_status,
+        note=note
+    )
+    
+    # Ticket durumunu güncelle
+    ticket.status = new_status
+    
+    try:
         db.session.add(history)
         db.session.commit()
-        
-        flash(f'Ticket durumu güncellendi: {new_status}')
+        flash(f'Ticket durumu güncellendi: {new_status}', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash('Veritabanı hatası oluştu.', 'error')
     
     return redirect(url_for('ticket_detail', ticket_id=ticket_id))
 
@@ -488,6 +489,25 @@ def add_category():
         flash('Kategori adı boş olamaz.', 'danger')
     
     return redirect(url_for('admin_panel'))
+
+@app.route('/api/tickets/counts')
+@login_required
+def get_ticket_counts():
+    if current_user.is_admin:
+        open_count = Ticket.query.filter_by(status='open').count()
+        resolved_count = Ticket.query.filter_by(status='resolved').count()
+        pending_count = Ticket.query.filter_by(status='in_progress').count()
+    else:
+        open_count = Ticket.query.filter_by(user_id=current_user.id, status='open').count()
+        resolved_count = Ticket.query.filter_by(user_id=current_user.id, status='resolved').count()
+        pending_count = Ticket.query.filter_by(user_id=current_user.id, status='in_progress').count()
+    
+    return jsonify({
+        'success': True,
+        'open': open_count,
+        'resolved': resolved_count,
+        'pending': pending_count
+    })
 
 if __name__ == '__main__':
     with app.app_context():

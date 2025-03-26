@@ -1,19 +1,18 @@
 {% extends "base.html" %}
 
-{% block title %}Ticket #{{ ticket.id }} - Help Desk{% endblock %}
+{% block title %}Ticket #{{ ticket.id }}{% endblock %}
 
 {% block content %}
-<div class="container py-4">
-    <div class="card">
-        <div class="card-header bg-white d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">
-                <i class="bi bi-ticket-perforated me-2"></i>Ticket #{{ ticket.id }}
-            </h5>
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Ticket #{{ ticket.id }}</h5>
+        <div>
+            {% if current_user.is_admin %}
             <div class="dropdown">
                 <button class="btn btn-outline-primary dropdown-toggle" type="button" id="statusDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                     <i class="bi bi-gear me-1"></i>Durum: {{ ticket.status }}
                 </button>
-                <ul class="dropdown-menu" aria-labelledby="statusDropdown">
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="statusDropdown">
                     {% for status in statuses %}
                     <li>
                         <form action="{{ url_for('update_ticket_status', ticket_id=ticket.id) }}" method="post" class="dropdown-item-form">
@@ -25,128 +24,79 @@
                     {% endfor %}
                 </ul>
             </div>
-        </div>
-        <div class="card-body">
-            <h4 class="card-title">{{ ticket.title }}</h4>
-            <p class="card-text">{{ ticket.description }}</p>
-            
-            <div class="row mt-4">
-                <div class="col-md-6">
-                    <div class="card bg-light">
-                        <div class="card-body">
-                            <h6 class="card-subtitle mb-2 text-muted">Ticket Bilgileri</h6>
-                            <p class="mb-1"><strong>Oluşturan:</strong> {{ ticket.user.username }}</p>
-                            <p class="mb-1"><strong>Oluşturulma Tarihi:</strong> {{ ticket.created_at.strftime('%d.%m.%Y %H:%M') }}</p>
-                            <p class="mb-1"><strong>Kategori:</strong> <span class="badge bg-info">{{ ticket.category }}</span></p>
-                            <p class="mb-0"><strong>Öncelik:</strong> 
-                                {% if ticket.priority == 'low' %}
-                                <span class="badge bg-info">Düşük</span>
-                                {% elif ticket.priority == 'medium' %}
-                                <span class="badge bg-warning">Normal</span>
-                                {% elif ticket.priority == 'high' %}
-                                <span class="badge bg-danger">Yüksek</span>
-                                {% endif %}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="mt-4">
-                <h5>Yanıtlar</h5>
-                {% for response in ticket.responses %}
-                <div class="card mb-3">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <h6 class="card-subtitle text-muted">{{ response.user.username }}</h6>
-                            <small class="text-muted">{{ response.created_at.strftime('%d.%m.%Y %H:%M') }}</small>
-                        </div>
-                        <p class="card-text">{{ response.content }}</p>
-                    </div>
-                </div>
-                {% endfor %}
-
-                {% if current_user.is_admin or ticket.user_id == current_user.id %}
-                <form action="{{ url_for('add_response', ticket_id=ticket.id) }}" method="post" class="mt-3">
-                    <div class="mb-3">
-                        <label for="content" class="form-label">Yanıtınız</label>
-                        <textarea class="form-control" id="content" name="content" rows="3" required></textarea>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Yanıt Ekle</button>
-                </form>
-                {% endif %}
-            </div>
-
-            {% if ticket.status_history %}
-            <div class="mt-4">
-                <h5>Durum Geçmişi</h5>
-                <div class="timeline">
-                    {% for history in ticket.status_history|sort(attribute='changed_at', reverse=true) %}
-                    <div class="timeline-item">
-                        <div class="timeline-badge bg-primary">
-                            <i class="bi bi-clock"></i>
-                        </div>
-                        <div class="timeline-content">
-                            <h6 class="mb-1">{{ history.new_status }}</h6>
-                            <p class="mb-1 text-muted">
-                                {{ history.changed_by.username }} tarafından {{ history.changed_at.strftime('%d.%m.%Y %H:%M') }}
-                            </p>
-                            {% if history.note %}
-                            <p class="mb-0">{{ history.note }}</p>
-                            {% endif %}
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
             {% endif %}
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-8">
+                <h6 class="card-subtitle mb-2 text-muted">
+                    <i class="bi bi-person me-1"></i>{{ ticket.user.username }} tarafından {{ ticket.created_at.strftime('%d.%m.%Y %H:%M') }} tarihinde oluşturuldu
+                </h6>
+                <h5 class="card-title">{{ ticket.title }}</h5>
+                <p class="card-text">{{ ticket.description }}</p>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h6 class="card-subtitle mb-2 text-muted">Ticket Bilgileri</h6>
+                        <p class="card-text">
+                            <strong>Kategori:</strong> {{ ticket.category.name }}<br>
+                            <strong>Öncelik:</strong> {{ ticket.priority }}<br>
+                            <strong>Durum:</strong> {{ ticket.status }}<br>
+                            <strong>Son Güncelleme:</strong> {{ ticket.updated_at.strftime('%d.%m.%Y %H:%M') }}
+                        </p>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
+<div class="card mt-4">
+    <div class="card-header">
+        <h5 class="mb-0">Yanıtlar</h5>
+    </div>
+    <div class="card-body">
+        {% for response in ticket.responses %}
+        <div class="card mb-3">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h6 class="card-subtitle text-muted">
+                        <i class="bi bi-person me-1"></i>{{ response.user.username }} tarafından {{ response.created_at.strftime('%d.%m.%Y %H:%M') }} tarihinde yazıldı
+                    </h6>
+                    {% if response.user == current_user or current_user.is_admin %}
+                    <form action="{{ url_for('delete_response', ticket_id=ticket.id, response_id=response.id) }}" method="POST" class="d-inline">
+                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Bu yanıtı silmek istediğinizden emin misiniz?')">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </form>
+                    {% endif %}
+                </div>
+                <p class="card-text">{{ response.content }}</p>
+            </div>
+        </div>
+        {% endfor %}
+
+        <form action="{{ url_for('add_response', ticket_id=ticket.id) }}" method="POST">
+            <div class="mb-3">
+                <label for="response" class="form-label">Yanıtınız</label>
+                <textarea class="form-control" id="response" name="content" rows="3" required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-send me-1"></i>Yanıt Gönder
+            </button>
+        </form>
+    </div>
+</div>
+
 <style>
+.dropdown-menu {
+    min-width: 250px;
+    padding: 0.5rem;
+}
 .dropdown-item-form {
-    padding: 0.5rem 1rem;
-}
-
-.timeline {
-    position: relative;
-    padding: 20px 0;
-}
-
-.timeline-item {
-    position: relative;
-    padding-left: 40px;
-    margin-bottom: 20px;
-}
-
-.timeline-badge {
-    position: absolute;
-    left: 0;
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    text-align: center;
-    line-height: 30px;
-    color: white;
-}
-
-.timeline-content {
-    background: #f8f9fa;
-    padding: 15px;
-    border-radius: 5px;
-}
-
-@media (max-width: 768px) {
-    .timeline-item {
-        padding-left: 30px;
-    }
-    
-    .timeline-badge {
-        width: 20px;
-        height: 20px;
-        line-height: 20px;
-    }
+    padding: 0.5rem;
 }
 </style>
 {% endblock %} 
